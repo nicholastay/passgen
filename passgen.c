@@ -7,6 +7,7 @@
 #define DEFAULT_GRAMMAR "Cvccvc!##"
 
 // i, o excluded due to potentially confusing 1/l/i + 0/o
+// y included as a vowel because it kinda is one
 #define VOWELS "aeuy"
 #define CONSONANTS "bcdfghkmnprstvwxz"
 #define NUMBERS "1234567890"
@@ -17,7 +18,11 @@ int main(int argc, char *argv[])
   char *grammar = DEFAULT_GRAMMAR;
   int grammar_size = sizeof(DEFAULT_GRAMMAR)-1;
 
-  if (argc == 4) {
+  if (argc == 2) {
+    // Take first argument as the grammar
+    grammar = argv[1];
+    grammar_size = strlen(grammar);
+  } else if (argc == 4) {
     // Take arguments as triplets, specials, numbers
     // atoi might be scuffed but so be it (it just goes = 0 if invalid input)
     int triplets = atoi(argv[1]);
