@@ -1,6 +1,6 @@
 Name: passgen
-Version: 0.0.0
-Release: 0%{?dist}
+Version: 0.1.0
+Release: 1%{?dist}
 License: Zlib
 Summary: A simple memorable and customisable password generator
 Url: https://gitlab.com/nicholastay/passgen
@@ -30,5 +30,8 @@ CFLAGS='-g' %make_build
 %{_bindir}/%{name}
 
 %changelog
+* Wed Dec 01 2021 Nicholas Tay <nick@windblume.net> 0.1.0-1
+- New package built with tito
+
 * Wed Dec 01 2021 Nicholas Tay <nick@windblume.net>
 - Initial spec
