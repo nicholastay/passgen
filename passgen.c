@@ -1,3 +1,5 @@
+#include "config.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
@@ -5,14 +7,12 @@
 #include <unistd.h>
 #include <string.h>
 
-#define DEFAULT_GRAMMAR "Cvccvc!##"
+#define CLASS(c, chars) \
+  case c: \
+    class = chars; \
+    class_size = sizeof(chars)-1; \
+    break;
 
-// i, o excluded due to potentially confusing 1/l/i + 0/o
-// y included as a vowel because it kinda is one
-#define VOWELS "aeuy"
-#define CONSONANTS "bcdfghkmnprstvwxz"
-#define NUMBERS "1234567890"
-#define SYMBOLS "@#$%^&*_-+=()[]{}"
 
 int main(int argc, char *argv[])
 {
@@ -64,20 +64,8 @@ int main(int argc, char *argv[])
 
     char *class;
     int class_size = 0;
-#define setClass(cl) \
-    class = cl; \
-    class_size = sizeof(cl)-1; \
-    break;
-
     switch (c) {
-    case 'c':
-      setClass(CONSONANTS);
-    case 'v':
-      setClass(VOWELS);
-    case '!':
-      setClass(SYMBOLS);
-    case '#':
-      setClass(NUMBERS);
+    CLASSES
     default:
       printf("ERROR: Invalid grammar character '%c'.\n", c);
       if (grammar != (char*)DEFAULT_GRAMMAR)
