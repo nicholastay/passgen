@@ -12,15 +12,15 @@
 #define NUMBERS "1234567890"
 #define SYMBOLS "@#$%^&*_-+=()[]{}"
 
-int main(int argc, char *argv[])
+int main()
 {
   char *grammar = DEFAULT_GRAMMAR;
   int grammar_size = sizeof(DEFAULT_GRAMMAR)-1;
   
   char password[grammar_size];
 
-  // seed RNG; this isn't very good, but it's enough
-  srand(time(NULL) << 2 + getpid() % 420 - 69);
+  // seed RNG; this isn't very good, but it's enough (for now)
+  srand(time(NULL) + getpid() % 420 - 69);
   
   for (int i = 0; i < grammar_size; ++i) {
     char c = grammar[i];
@@ -35,23 +35,20 @@ int main(int argc, char *argv[])
     int class_size = 0;
 #define setClass(cl) \
     class = cl; \
-    class_size = sizeof(cl)-1;
+    class_size = sizeof(cl)-1; \
+    break;
 
     switch (c) {
     case 'c':
       setClass(CONSONANTS);
-      break;
     case 'v':
       setClass(VOWELS);
-      break;
     case '!':
       setClass(SYMBOLS);
-      break;
     case '#':
       setClass(NUMBERS);
-      break;
     default:
-      printf("ERROR: Invalid grammar character '%C'.\n", c);
+      printf("ERROR: Invalid grammar character '%c'.\n", c);
       return 1;
     }
 
