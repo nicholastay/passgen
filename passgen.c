@@ -3,6 +3,7 @@
 #include <stdbool.h>
 #include <time.h>
 #include <unistd.h>
+#include <string.h>
 
 #define DEFAULT_GRAMMAR "Cvccvc!##"
 
