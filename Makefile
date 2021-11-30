@@ -1,11 +1,18 @@
+NAME = passgen
+PREFIX = $(HOME)/.local
+
 CC = gcc
-CFLAGS = -Wall -Wextra -Wshadow -Werror -pedantic
+CFLAGS += -Wall -Wextra -Wshadow -Werror -pedantic
 
-default: passgen
+default: $(NAME)
 
-passgen: passgen.c
-	$(CC) $(CFLAGS) -o passgen passgen.c
+$(NAME): $(NAME).c config.h
+	$(CC) $(CFLAGS) -o $(NAME) $(NAME).c
+
+install: $(NAME)
+	install -d $(DESTDIR)$(PREFIX)/bin/
+	install -m 755 $(NAME) $(DESTDIR)$(PREFIX)/bin/
 
 clean: 
 	rm -f *.o
-	rm -f passgen
+	rm -f $(NAME)
