@@ -48,7 +48,8 @@ int main(int argc, char *argv[])
     //printf("Custom: %s\n", grammar);
   }
 
-  char password[grammar_size];
+  char password[grammar_size+1];
+  password[grammar_size] = 0;
 
   // seed RNG; this isn't very good, but it's enough (for now)
   srand(time(NULL) + getpid() % 420 - 69);
