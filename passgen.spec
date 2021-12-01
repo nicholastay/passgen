@@ -10,6 +10,9 @@ Url: https://gitlab.com/nicholastay/passgen
 # tito build --tgz
 Source0: %{name}-%{version}.tar.gz
 
+BuildRequires: gcc
+BuildRequires: make
+
 %description
 Just a password generator that makes passwds.ninja-style passwords.
 
