@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     int numbers = atoi(argv[3]);
 
     if (triplets < 1) {
-      printf("ERROR: Cannot have less than one triplet.");
+      fprintf(stderr, "ERROR: Cannot have less than one triplet.");
       return 1;
     }
 
@@ -62,7 +62,6 @@ int main(int argc, char *argv[])
 
     memset(grammar + (triplets * 3), '!', specials);
     memset(grammar + (triplets * 3) + specials, '#', numbers);
-    //printf("Custom: %s\n", grammar);
     custom_grammar = true;
   }
 
@@ -92,7 +91,7 @@ int main(int argc, char *argv[])
     switch (c) {
     CLASSES
     default:
-      printf("ERROR: Invalid grammar character '%c'.\n", c);
+      fprintf(stderr, "ERROR: Invalid grammar character '%c'.\n", c);
       if (custom_grammar)
         free(grammar);
       free(password);
