@@ -9,13 +9,15 @@
 #include <sys/random.h>
 #else
 #include <time.h>
-#endif
 
 #if defined (_WIN32) && ! defined (__MINGW32__)
 #include <io.h>
-#else
+#elif ! defined (__linux__)
 #include <unistd.h>
 #endif
+
+#endif
+
 
 #define CLASS(c, chars) \
   case c: \
