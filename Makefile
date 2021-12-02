@@ -2,7 +2,7 @@ NAME = passgen
 PREFIX = $(HOME)/.local
 
 CC = gcc
-CFLAGS += -Wall -Wextra -Wshadow -Werror -pedantic
+CFLAGS += -std=c99 -Wall -Wextra -Wshadow -Werror -pedantic
 
 default: $(NAME)
 
