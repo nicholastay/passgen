@@ -21,6 +21,7 @@
 
 int main(int argc, char *argv[])
 {
+  bool custom_grammar = false;
   char *grammar = DEFAULT_GRAMMAR;
   int grammar_size = sizeof(DEFAULT_GRAMMAR)-1;
 
@@ -51,6 +52,7 @@ int main(int argc, char *argv[])
     memset(grammar + (triplets * 3), '!', specials);
     memset(grammar + (triplets * 3) + specials, '#', numbers);
     //printf("Custom: %s\n", grammar);
+    custom_grammar = true;
   }
 
   char password[grammar_size+1];
@@ -76,7 +78,7 @@ int main(int argc, char *argv[])
     CLASSES
     default:
       printf("ERROR: Invalid grammar character '%c'.\n", c);
-      if (grammar != (char*)DEFAULT_GRAMMAR)
+      if (custom_grammar)
         free(grammar);
       return 1;
     }
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
     } while (i != 0 && password[i] == password[i-1]);
   }
 
-  if (grammar != (char*)DEFAULT_GRAMMAR)
+  if (custom_grammar)
     free(grammar);
 
   printf("%s\n", password);
