@@ -56,11 +56,7 @@ int main(int argc, char *argv[])
   char password[grammar_size+1];
   password[grammar_size] = 0;
 
-#ifdef __linux__
-  // Reduce syscalls by generating a bunch and then doing it
-  unsigned int entropy[grammar_size];
-  getrandom(&entropy, sizeof(entropy), 0);
-#else
+#ifndef __linux__
   // seed RNG; this isn't very good, but it's enough(?)
   srand(time(NULL) + getpid() % 420 - 69);
 #endif
@@ -87,7 +83,8 @@ int main(int argc, char *argv[])
 
     do {
 #ifdef __linux__
-      unsigned int r = entropy[i];
+      unsigned int r;
+      getrandom(&r, sizeof(r), 0);
 #else
       long r = rand();
 #endif
