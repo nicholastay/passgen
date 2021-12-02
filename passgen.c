@@ -3,9 +3,14 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdbool.h>
+#include <string.h>
+
+#ifdef __linux__
+#include <sys/random.h>
+#else
 #include <time.h>
 #include <unistd.h>
-#include <string.h>
+#endif
 
 #define CLASS(c, chars) \
   case c: \
@@ -51,8 +56,14 @@ int main(int argc, char *argv[])
   char password[grammar_size+1];
   password[grammar_size] = 0;
 
-  // seed RNG; this isn't very good, but it's enough (for now)
+#ifdef __linux__
+  // Reduce syscalls by generating a bunch and then doing it
+  unsigned int entropy[grammar_size];
+  getrandom(&entropy, sizeof(entropy), 0);
+#else
+  // seed RNG; this isn't very good, but it's enough(?)
   srand(time(NULL) + getpid() % 420 - 69);
+#endif
   
   for (int i = 0; i < grammar_size; ++i) {
     char c = grammar[i];
@@ -75,7 +86,12 @@ int main(int argc, char *argv[])
     }
 
     do {
-      password[i] = class[rand() % class_size] - (caps ? 'a' - 'A' : 0);
+#ifdef __linux__
+      unsigned int r = entropy[i];
+#else
+      long r = rand();
+#endif
+      password[i] = class[r % class_size] - (caps ? 'a' - 'A' : 0);
     } while (i != 0 && password[i] == password[i-1]);
   }
 
