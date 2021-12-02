@@ -9,6 +9,11 @@
 #include <sys/random.h>
 #else
 #include <time.h>
+#endif
+
+#if defined (_WIN32) && ! defined (__MINGW32__)
+#include <io.h>
+#else
 #include <unistd.h>
 #endif
 
@@ -43,6 +48,10 @@ int main(int argc, char *argv[])
 
     grammar_size = triplets * 3 + specials + numbers;
     grammar = malloc(grammar_size + 1);
+    if (grammar == NULL) {
+      perror("malloc");
+      return 1;
+    }
     grammar[grammar_size] = 0;
 
     memcpy(grammar, "Cvc", 3);
@@ -55,7 +64,11 @@ int main(int argc, char *argv[])
     custom_grammar = true;
   }
 
-  char password[grammar_size+1];
+  char *password = malloc(grammar_size + 1);
+  if (password == NULL) {
+    perror("malloc");
+    return 1;
+  }
   password[grammar_size] = 0;
 
 #ifndef __linux__
@@ -80,6 +93,7 @@ int main(int argc, char *argv[])
       printf("ERROR: Invalid grammar character '%c'.\n", c);
       if (custom_grammar)
         free(grammar);
+      free(password);
       return 1;
     }
 
@@ -98,6 +112,7 @@ int main(int argc, char *argv[])
     free(grammar);
 
   printf("%s\n", password);
+  free(password);
 
   return 0;
 }
