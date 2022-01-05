@@ -20,25 +20,27 @@
 
 
 #define CLASS(c, chars) \
-  case c: \
-    class = chars; \
-    class_size = sizeof(chars)-1; \
-    break;
+    case c: \
+        class = chars; \
+        class_size = sizeof(chars)-1; \
+        break;
 
 
 int main(int argc, char *argv[])
 {
     bool custom_grammar = false;
     char *grammar = DEFAULT_GRAMMAR;
-    int grammar_size = sizeof(DEFAULT_GRAMMAR)-1;
+    int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
 
     if (argc == 2) {
-        // Take first argument as the grammar
+        /* Take first argument as the grammar */
         grammar = argv[1];
         grammar_size = strlen(grammar);
     } else if (argc == 4) {
-        // Take arguments as triplets, specials, numbers
-        // atoi might be scuffed but so be it (it just goes = 0 if invalid input)
+        /* 
+	 * Take arguments as triplets, specials, numbers
+         * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
+	 */
         int triplets = atoi(argv[1]);
         int specials = atoi(argv[2]);
         int numbers = atoi(argv[3]);
@@ -73,7 +75,17 @@ int main(int argc, char *argv[])
     password[grammar_size] = 0;
 
 #ifndef __linux__
-    // seed RNG; this isn't very good, but it's enough(?)
+    /*
+     * TODO: seed better RNG
+     * this isn't very good, but it's enough(?) for now
+     *
+     * on linux we use the `getrandom` api which is supposedly
+     * what crypto uses to generate. potentially on win we
+     * can use the crypto thing (but it's more complicated
+     * to invoke).
+     *
+     * anything else we could use on posix systems?
+     */
     srand(time(NULL) + getpid() % 420 - 69);
 #endif
 
@@ -106,7 +118,7 @@ int main(int argc, char *argv[])
             long r = rand();
 #endif
             password[i] = class[r % class_size] - (caps ? 'a' - 'A' : 0);
-        } while (i != 0 && password[i] == password[i-1]);
+        } while (i != 0 && password[i] == password[i - 1]);
     }
 
     if (custom_grammar)
