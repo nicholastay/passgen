@@ -4,6 +4,7 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
+#include <unistd.h>
 
 #ifdef __linux__
 #include <sys/random.h>
@@ -12,8 +13,6 @@
 
 #if defined (_WIN32) && ! defined (__MINGW32__)
 #include <io.h>
-#elif ! defined (__linux__)
-#include <unistd.h>
 #endif
 
 #endif
@@ -113,7 +112,7 @@ int main(int argc, char *argv[])
         do {
 #ifdef __linux__
             unsigned int r;
-            getrandom(&r, sizeof(r), 0);
+            getentropy(&r, sizeof(r));
 #else
             long r = rand();
 #endif
