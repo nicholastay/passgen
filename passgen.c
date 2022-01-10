@@ -38,9 +38,9 @@ int main(int argc, char *argv[])
         grammar_size = strlen(grammar);
     } else if (argc == 4) {
         /* 
-	 * Take arguments as triplets, specials, numbers
+         * Take arguments as triplets, specials, numbers
          * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
-	 */
+         */
         int triplets = atoi(argv[1]);
         int specials = atoi(argv[2]);
         int numbers = atoi(argv[3]);
