@@ -28,7 +28,7 @@
 #   include <wincrypt.h>
 #else
 #   include <time.h>
-    /* getpid() on Windows */ 
+/* getpid() on Windows */
 #   if defined (_WIN32) && ! defined (__MINGW32__)
 #       include <io.h>
 #   else
@@ -123,7 +123,7 @@ int main(int argc, char *argv[])
         grammar = argv[1];
         grammar_size = strlen(grammar);
     } else if (argc == 4) {
-        /* 
+        /*
          * Take arguments as triplets, specials, numbers
          * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
          */
