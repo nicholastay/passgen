@@ -6,7 +6,7 @@
 #include <string.h>
 #include <unistd.h>
 
-#ifdef __linux__
+#if defined (__linux__) || defined (__APPLE__)
 #include <sys/random.h>
 #else
 #include <time.h>
@@ -73,7 +73,7 @@ int main(int argc, char *argv[])
     }
     password[grammar_size] = 0;
 
-#ifndef __linux__
+#if ! defined (__linux__) && ! defined (__APPLE__)
     /*
      * TODO: seed better RNG
      * this isn't very good, but it's enough(?) for now
@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
         }
 
         do {
-#ifdef __linux__
+#if defined (__linux__) || defined (__APPLE__)
             unsigned int r;
             getentropy(&r, sizeof(r));
 #else
