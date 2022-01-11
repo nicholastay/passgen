@@ -5,9 +5,20 @@
 #include <stdbool.h>
 #include <string.h>
 
+#if    defined (__linux__) \
+    || defined (__APPLE__) \
+    || defined (__FreeBSD__) \
+    || defined (__OpenBSD__)
+#   define USE_GETENTROPY 1
+#endif
+
 /* getentropy() vs rand()+time()+getpid() */
+#ifdef USE_GETENTROPY
 #if defined (__linux__) || defined (__APPLE__)
-#include <sys/random.h>
+#    include <sys/random.h>
+#else
+#    include <unistd.h>
+#endif
 #else
 #include <time.h>
 
@@ -76,7 +87,7 @@ int main(int argc, char *argv[])
     }
     password[grammar_size] = 0;
 
-#if ! defined (__linux__) && ! defined (__APPLE__)
+#ifndef USE_GETENTROPY
     /*
      * TODO: seed better RNG
      * this isn't very good, but it's enough(?) for now
@@ -113,7 +124,7 @@ int main(int argc, char *argv[])
         }
 
         do {
-#if defined (__linux__) || defined (__APPLE__)
+#ifdef USE_GETENTROPY
             unsigned int r;
             getentropy(&r, sizeof(r));
 #else
