@@ -4,15 +4,18 @@
 #include <stdlib.h>
 #include <stdbool.h>
 #include <string.h>
-#include <unistd.h>
 
+/* getentropy() vs rand()+time()+getpid() */
 #if defined (__linux__) || defined (__APPLE__)
 #include <sys/random.h>
 #else
 #include <time.h>
 
+/* getpid() on Windows */
 #if defined (_WIN32) && ! defined (__MINGW32__)
 #include <io.h>
+#else
+#include <unistd.h>
 #endif
 
 #endif
