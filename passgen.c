@@ -45,7 +45,7 @@
 
 
 #ifdef USE_WINCRYPT
-HCRYPTPROV win_rng;
+HCRYPTPROV win_rng = NULL;
 #endif
 bool init_rng(void)
 {
@@ -116,6 +116,7 @@ int main(int argc, char *argv[])
     bool custom_grammar = false;
     char *grammar = DEFAULT_GRAMMAR;
     int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
+    char *password = NULL;
 
     if (argc == 2) {
         /* Take first argument as the grammar */
@@ -134,7 +135,7 @@ int main(int argc, char *argv[])
         custom_grammar = true;
     }
 
-    char *password = malloc(grammar_size + 1);
+    password = malloc(grammar_size + 1);
     if (password == NULL) {
         perror("malloc");
         err = true;
