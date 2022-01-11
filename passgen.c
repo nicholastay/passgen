@@ -39,54 +39,9 @@
         break;
 
 
-int main(int argc, char *argv[])
+void init_rng(void)
 {
-    bool custom_grammar = false;
-    char *grammar = DEFAULT_GRAMMAR;
-    int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
-
-    if (argc == 2) {
-        /* Take first argument as the grammar */
-        grammar = argv[1];
-        grammar_size = strlen(grammar);
-    } else if (argc == 4) {
-        /* 
-         * Take arguments as triplets, specials, numbers
-         * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
-         */
-        int triplets = atoi(argv[1]);
-        int specials = atoi(argv[2]);
-        int numbers = atoi(argv[3]);
-
-        if (triplets < 1) {
-            fprintf(stderr, "ERROR: Cannot have less than one triplet.");
-            return 1;
-        }
-
-        grammar_size = triplets * 3 + specials + numbers;
-        grammar = malloc(grammar_size + 1);
-        if (grammar == NULL) {
-            perror("malloc");
-            return 1;
-        }
-        grammar[grammar_size] = 0;
-
-        memcpy(grammar, "Cvc", 3);
-        for (int i = 1; i < triplets; ++i)
-            memcpy(grammar + (i * 3), "cvc", 3);
-
-        memset(grammar + (triplets * 3), '!', specials);
-        memset(grammar + (triplets * 3) + specials, '#', numbers);
-        custom_grammar = true;
-    }
-
-    char *password = malloc(grammar_size + 1);
-    if (password == NULL) {
-        perror("malloc");
-        return 1;
-    }
-    password[grammar_size] = 0;
-
+    /* For now, this is only needed on rand() */
 #ifndef USE_GETENTROPY
     /*
      * TODO: seed better RNG
@@ -101,6 +56,76 @@ int main(int argc, char *argv[])
      */
     srand(time(NULL) + getpid() % 420 - 69);
 #endif
+}
+
+int get_rng(void)
+{
+#ifdef USE_GETENTROPY
+    int r;
+    getentropy(&r, sizeof(r));
+    return r;
+#else
+    return rand();
+#endif
+}
+
+char *build_grammar(int triplets, int specials, int numbers)
+{
+    if (triplets < 1) {
+        fprintf(stderr, "ERROR: Cannot have less than one triplet.");
+        return NULL;
+    }
+
+    int grammar_size = triplets * 3 + specials + numbers;
+    char *build = malloc(grammar_size + 1);
+    if (build == NULL) {
+        perror("malloc");
+        return NULL;
+    }
+    build[grammar_size] = 0;
+
+    memcpy(build, "Cvc", 3);
+    for (int i = 1; i < triplets; ++i)
+        memcpy(build + (i * 3), "cvc", 3);
+
+    memset(build + (triplets * 3), '!', specials);
+    memset(build + (triplets * 3) + specials, '#', numbers);
+    return build;
+}
+
+int main(int argc, char *argv[])
+{
+    bool err = false;
+    bool custom_grammar = false;
+    char *grammar = DEFAULT_GRAMMAR;
+    int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
+
+    if (argc == 2) {
+        /* Take first argument as the grammar */
+        grammar = argv[1];
+        grammar_size = strlen(grammar);
+    } else if (argc == 4) {
+        /* 
+         * Take arguments as triplets, specials, numbers
+         * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
+         */
+        grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+        if (grammar == NULL) {
+            err = true;
+            goto cleanup;
+        }
+        custom_grammar = true;
+    }
+
+    char *password = malloc(grammar_size + 1);
+    if (password == NULL) {
+        perror("malloc");
+        err = true;
+        goto cleanup;
+    }
+    password[grammar_size] = 0;
+
+    init_rng();
 
     for (int i = 0; i < grammar_size; ++i) {
         char c = grammar[i];
@@ -117,28 +142,25 @@ int main(int argc, char *argv[])
             CLASSES
         default:
             fprintf(stderr, "ERROR: Invalid grammar character '%c'.\n", c);
-            if (custom_grammar)
-                free(grammar);
-            free(password);
-            return 1;
+            err = true;
+            goto cleanup;
         }
 
         do {
-#ifdef USE_GETENTROPY
-            unsigned int r;
-            getentropy(&r, sizeof(r));
-#else
-            long r = rand();
-#endif
-            password[i] = class[r % class_size] - (caps ? 'a' - 'A' : 0);
+            password[i] = class[get_rng() % class_size] - (caps ? 'a' - 'A' : 0);
         } while (i != 0 && password[i] == password[i - 1]);
     }
 
+    printf("%s\n", password);
+
+cleanup:
     if (custom_grammar)
         free(grammar);
+    if (password)
+        free(password);
 
-    printf("%s\n", password);
-    free(password);
+    if (err)
+        return 1;
 
     return 0;
 }
