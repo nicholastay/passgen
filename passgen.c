@@ -58,10 +58,10 @@ void init_rng(void)
 #endif
 }
 
-int get_rng(void)
+unsigned int get_rng(void)
 {
 #ifdef USE_GETENTROPY
-    int r;
+    unsigned int r;
     getentropy(&r, sizeof(r));
     return r;
 #else
