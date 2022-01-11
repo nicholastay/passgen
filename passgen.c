@@ -9,26 +9,31 @@
     || defined (__APPLE__) \
     || defined (__FreeBSD__) \
     || defined (__OpenBSD__)
-#   define USE_GETENTROPY 1
+#   define USE_GETENTROPY
+#elif defined (_WIN32) && ! defined (__MINGW32__)
+#   define USE_WINCRYPT
 #endif
+
 
 /* getentropy() vs rand()+time()+getpid() */
 #ifdef USE_GETENTROPY
 #if defined (__linux__) || defined (__APPLE__)
-#    include <sys/random.h>
+#   include <sys/random.h>
 #else
-#    include <unistd.h>
+#   include <unistd.h>
 #endif
+#elif defined (USE_WINCRYPT)
+#   define WIN32_LEAN_AND_MEAN
+#   include <Windows.h>
+#   include <wincrypt.h>
 #else
-#include <time.h>
-
-/* getpid() on Windows */
-#if defined (_WIN32) && ! defined (__MINGW32__)
-#include <io.h>
-#else
-#include <unistd.h>
-#endif
-
+#   include <time.h>
+    /* getpid() on Windows */ 
+#   if defined (_WIN32) && ! defined (__MINGW32__)
+#       include <io.h>
+#   else
+#       include <unistd.h>
+#   endif
 #endif
 
 
@@ -39,34 +44,46 @@
         break;
 
 
-void init_rng(void)
+#ifdef USE_WINCRYPT
+HCRYPTPROV win_rng;
+#endif
+bool init_rng(void)
 {
-    /* For now, this is only needed on rand() */
-#ifndef USE_GETENTROPY
+#ifdef USE_WINCRYPT
+    CryptAcquireContext(
+        &win_rng,
+        NULL,
+        NULL,
+        PROV_RSA_FULL,
+        CRYPT_VERIFYCONTEXT | CRYPT_SILENT
+    );
+    if (!win_rng)
+        return false;
+#elif ! defined (USE_GETENTROPY) && ! defined (USE_WINCRYPT)
     /*
      * TODO: seed better RNG
      * this isn't very good, but it's enough(?) for now
      *
-     * on linux we use the `getrandom` api which is supposedly
-     * what crypto uses to generate. potentially on win we
-     * can use the crypto thing (but it's more complicated
-     * to invoke).
-     *
-     * anything else we could use on posix systems?
+     * anything else we could use on general posix systems?
+     * perhaps /dev/urandom is a better fallback before doing this
      */
     srand(time(NULL) + getpid() % 420 - 69);
 #endif
+    return true;
 }
 
 unsigned int get_rng(void)
 {
-#ifdef USE_GETENTROPY
     unsigned int r;
+#ifdef USE_GETENTROPY
     getentropy(&r, sizeof(r));
-    return r;
+#elif defined (USE_WINCRYPT)
+    /* TODO: This could fail. Figure out how to handle */
+    CryptGenRandom(win_rng, sizeof(r), (BYTE *) &r);
 #else
-    return rand();
+    r = rand();
 #endif
+    return r;
 }
 
 char *build_grammar(int triplets, int specials, int numbers)
@@ -125,7 +142,11 @@ int main(int argc, char *argv[])
     }
     password[grammar_size] = 0;
 
-    init_rng();
+    if (!init_rng()) {
+        fprintf(stderr, "ERROR: Could not initialise RNG.");
+        err = true;
+        goto cleanup;
+    }
 
     for (int i = 0; i < grammar_size; ++i) {
         char c = grammar[i];
@@ -154,6 +175,9 @@ int main(int argc, char *argv[])
     printf("%s\n", password);
 
 cleanup:
+#ifdef USE_WINCRYPT
+    CryptReleaseContext(win_rng, 0);
+#endif
     if (custom_grammar)
         free(grammar);
     if (password)
