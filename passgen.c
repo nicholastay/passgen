@@ -91,10 +91,6 @@ char password_buf[STATIC_BUFFER_SIZE + 1];
 
 char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 {
-    if (triplets < 1) {
-        fprintf(stderr, "ERROR: Cannot have less than one triplet.");
-        return NULL;
-    }
     *grammar_size = triplets * 3 + specials + numbers;
 
     char *build = grammar_buf;
@@ -107,10 +103,11 @@ char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
     }
     build[*grammar_size] = 0;
 
-    memcpy(build, "Cvc", 3);
-    for (int i = 1; i < triplets; ++i)
-        memcpy(build + (i * 3), "cvc", 3);
-
+    if (triplets > 0) {
+        memcpy(build, "Cvc", 3);
+        for (int i = 1; i < triplets; ++i)
+            memcpy(build + (i * 3), "cvc", 3);
+    }
     memset(build + (triplets * 3), '!', specials);
     memset(build + (triplets * 3) + specials, '#', numbers);
     return build;
