@@ -213,7 +213,8 @@ cleanup:
 #ifdef USE_WINCRYPT
     CryptReleaseContext(win_rng, 0);
 #endif
-    if (grammar != grammar_buf)
+    /* TODO: this && kinda sucks, would like a better but still fast way */
+    if (grammar != grammar_buf && grammar != argv[1])
         free(grammar);
     if (password != password_buf)
         free(password);
