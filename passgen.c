@@ -131,6 +131,7 @@ int main(int argc, char *argv[])
          */
         grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), &grammar_size);
         if (grammar == NULL) {
+            fprintf(stderr, "ERROR: Could not initialise memory for password grammar.\n");
             err = true;
             goto cleanup;
         }
@@ -147,7 +148,7 @@ int main(int argc, char *argv[])
     password[grammar_size] = 0;
 
     if (!init_rng()) {
-        fprintf(stderr, "ERROR: Could not initialise RNG.");
+        fprintf(stderr, "ERROR: Could not initialise RNG.\n");
         err = true;
         goto cleanup;
     }
