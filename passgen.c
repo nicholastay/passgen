@@ -37,11 +37,21 @@
 #endif
 
 
-#define CLASS(c, chars) \
-    case c: \
-        class = chars; \
-        class_size = sizeof(chars)-1; \
-        break;
+#define CLASS(ch, chars) \
+    { \
+        .c = ch, \
+        .letters = chars, \
+        .size = sizeof(chars) - 1, \
+    },
+struct grammar_class {
+    char c;
+    char *letters;
+    int size;
+};
+struct grammar_class classes[] = {
+    CLASSES
+};
+int const classes_n = sizeof(classes) / sizeof(classes[0]);
 
 
 #ifdef USE_WINCRYPT
@@ -175,18 +185,21 @@ Compile-time options:\n\
             c += 'a' - 'A';
         }
 
-        char *class;
-        int class_size = 0;
-        switch (c) {
-            CLASSES
-        default:
+        struct grammar_class *class = NULL;
+        for (int j = 0; j < classes_n; ++j) {
+            if (c == classes[j].c) {
+                class = &classes[j];
+                break;
+            }
+        }
+        if (class == NULL) {
             fprintf(stderr, "ERROR: Invalid grammar character '%c'.\n", c);
             err = true;
             goto cleanup;
         }
 
         do {
-            password[i] = class[get_rng() % class_size] - (caps ? 'a' - 'A' : 0);
+            password[i] = class->letters[get_rng() % class->size] - (caps ? 'a' - 'A' : 0);
         } while (i != 0 && password[i] == password[i - 1]);
     }
 
