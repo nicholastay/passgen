@@ -1,5 +1,8 @@
 #define DEFAULT_GRAMMAR "Cvccvc!##"
 
+/* Use some static buffers to avoid malloc */
+#define STATIC_BUFFER_SIZE 24
+
 /*
  * For vowels:
  *   i, o excluded due to potentially confusing 1/l/i + 0/o

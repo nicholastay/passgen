@@ -86,18 +86,24 @@ unsigned int get_rng(void)
     return r;
 }
 
+char grammar_buf[STATIC_BUFFER_SIZE + 1] = DEFAULT_GRAMMAR;
+char password_buf[STATIC_BUFFER_SIZE + 1];
+
 char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 {
     if (triplets < 1) {
         fprintf(stderr, "ERROR: Cannot have less than one triplet.");
         return NULL;
     }
-
     *grammar_size = triplets * 3 + specials + numbers;
-    char *build = malloc(*grammar_size + 1);
-    if (build == NULL) {
-        perror("malloc");
-        return NULL;
+
+    char *build = grammar_buf;
+    if (*grammar_size > STATIC_BUFFER_SIZE) {
+        build = malloc(*grammar_size + 1);
+        if (build == NULL) {
+            perror("malloc");
+            return NULL;
+        }
     }
     build[*grammar_size] = 0;
 
@@ -113,10 +119,9 @@ char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 int main(int argc, char *argv[])
 {
     bool err = false;
-    bool custom_grammar = false;
-    char *grammar = DEFAULT_GRAMMAR;
+    char *grammar = grammar_buf;
     int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
-    char *password = NULL;
+    char *password = password_buf;
 
     if (argc == 2) {
         /* Take first argument as the grammar */
@@ -132,14 +137,15 @@ int main(int argc, char *argv[])
             err = true;
             goto cleanup;
         }
-        custom_grammar = true;
     }
 
-    password = malloc(grammar_size + 1);
-    if (password == NULL) {
-        perror("malloc");
-        err = true;
-        goto cleanup;
+    if (grammar_size > STATIC_BUFFER_SIZE) {
+        password = malloc(grammar_size + 1);
+        if (password == NULL) {
+            perror("malloc");
+            err = true;
+            goto cleanup;
+        }
     }
     password[grammar_size] = 0;
 
@@ -179,9 +185,9 @@ cleanup:
 #ifdef USE_WINCRYPT
     CryptReleaseContext(win_rng, 0);
 #endif
-    if (custom_grammar)
+    if (grammar != grammar_buf)
         free(grammar);
-    if (password)
+    if (password != password_buf)
         free(password);
 
     if (err)
