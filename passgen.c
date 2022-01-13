@@ -86,20 +86,20 @@ unsigned int get_rng(void)
     return r;
 }
 
-char *build_grammar(int triplets, int specials, int numbers)
+char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 {
     if (triplets < 1) {
         fprintf(stderr, "ERROR: Cannot have less than one triplet.");
         return NULL;
     }
 
-    int grammar_size = triplets * 3 + specials + numbers;
-    char *build = malloc(grammar_size + 1);
+    *grammar_size = triplets * 3 + specials + numbers;
+    char *build = malloc(*grammar_size + 1);
     if (build == NULL) {
         perror("malloc");
         return NULL;
     }
-    build[grammar_size] = 0;
+    build[*grammar_size] = 0;
 
     memcpy(build, "Cvc", 3);
     for (int i = 1; i < triplets; ++i)
@@ -127,7 +127,7 @@ int main(int argc, char *argv[])
          * Take arguments as triplets, specials, numbers
          * atoi might be scuffed but so be it (it just goes = 0 if invalid input)
          */
-        grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]));
+        grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), &grammar_size);
         if (grammar == NULL) {
             err = true;
             goto cleanup;
