@@ -121,6 +121,19 @@ int main(int argc, char *argv[])
     char *password = password_buf;
 
     if (argc == 2) {
+        if (strcmp(argv[1], "--help") == 0) {
+            printf("\
+passgen - a small, customisable password generator\n\
+Usage: %s\n\
+       %s <grammar>\n\
+       %s <#triplets ('Cvc')> <#symbols> <#numbers>\n\
+Hints:\n\
+  - No arguments generates with the default grammar.\n\
+  - If three numbers are provided, a password will be generated in the 'standard form', <triplets><symbols><numbers>.\n\
+Compile-time options:\n\
+  - Default grammar: %s\n", argv[0], argv[0], argv[0], grammar_buf);
+            return 0;
+        }
         /* Take first argument as the grammar */
         grammar = argv[1];
         grammar_size = strlen(grammar);
