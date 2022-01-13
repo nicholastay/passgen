@@ -137,11 +137,12 @@ passgen - a small, customisable password generator\n\
 Usage: %s\n\
        %s <grammar>\n\
        %s <#triplets ('Cvc')> <#symbols> <#numbers>\n\
+       %s --help\n\
 Hints:\n\
   - No arguments generates with the default grammar.\n\
   - If three numbers are provided, a password will be generated in the 'standard form', <triplets><symbols><numbers>.\n\
 Compile-time options (edit `config.h` to customise!):\n\
-  - Default grammar: %s\n", argv[0], argv[0], argv[0], grammar_buf);
+  - Default grammar: %s\n", argv[0], argv[0], argv[0], argv[0], grammar_buf);
             printf("  - Grammar mappings:\n");
             for (int i = 0; i < classes_n; ++i) {
                 printf("    - '%c' => \"%s\"\n", classes[i].c, classes[i].letters);
