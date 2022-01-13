@@ -183,12 +183,9 @@ Compile-time options (edit `config.h` to customise!):\n\
 
     for (int i = 0; i < grammar_size; ++i) {
         char c = grammar[i];
-
-        bool caps = false;
-        if (c >= 'A' && c <= 'Z') {
-            caps = true;
+        bool caps = c >= 'A' && c <= 'Z';
+        if (caps)
             c += 'a' - 'A';
-        }
 
         struct grammar_class *class = NULL;
         for (int j = 0; j < classes_n; ++j) {
@@ -204,7 +201,9 @@ Compile-time options (edit `config.h` to customise!):\n\
         }
 
         do {
-            password[i] = class->letters[get_rng() % class->size] - (caps ? 'a' - 'A' : 0);
+            password[i] = class->letters[get_rng() % class->size];
+            if (caps && password[i] >= 'a' && password[i] <= 'z')
+                password[i] -= 'a' - 'A';
         } while (i != 0 && password[i] == password[i - 1]);
     }
 
