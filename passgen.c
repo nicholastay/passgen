@@ -125,7 +125,7 @@ char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 
 int main(int argc, char *argv[])
 {
-    bool err = false;
+    int ret_code = EXIT_SUCCESS;
     char *grammar = grammar_buf;
     int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
     char *password = password_buf;
@@ -160,7 +160,7 @@ Compile-time options (edit `config.h` to customise!):\n\
         grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), &grammar_size);
         if (grammar == NULL) {
             fprintf(stderr, "ERROR: Could not initialise memory for password grammar.\n");
-            err = true;
+            ret_code = EXIT_FAILURE;
             goto cleanup;
         }
     }
@@ -169,7 +169,7 @@ Compile-time options (edit `config.h` to customise!):\n\
         password = malloc(grammar_size + 1);
         if (password == NULL) {
             perror("malloc");
-            err = true;
+            ret_code = EXIT_FAILURE;
             goto cleanup;
         }
     }
@@ -177,7 +177,7 @@ Compile-time options (edit `config.h` to customise!):\n\
 
     if (!init_rng()) {
         fprintf(stderr, "ERROR: Could not initialise RNG.\n");
-        err = true;
+        ret_code = EXIT_FAILURE;
         goto cleanup;
     }
 
@@ -196,7 +196,7 @@ Compile-time options (edit `config.h` to customise!):\n\
         }
         if (class == NULL) {
             fprintf(stderr, "ERROR: Invalid grammar character '%c'.\n", c);
-            err = true;
+            ret_code = EXIT_FAILURE;
             goto cleanup;
         }
 
@@ -219,8 +219,5 @@ cleanup:
     if (password != password_buf)
         free(password);
 
-    if (err)
-        return 1;
-
-    return 0;
+    return ret_code;
 }
