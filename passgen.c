@@ -55,19 +55,18 @@ int const classes_n = sizeof(classes) / sizeof(classes[0]);
 
 
 #ifdef USE_WINCRYPT
-HCRYPTPROV win_rng = NULL;
+HCRYPTPROV win_rng;
 #endif
 bool init_rng(void)
 {
 #ifdef USE_WINCRYPT
-    CryptAcquireContext(
+    if (!CryptAcquireContext(
         &win_rng,
         NULL,
         NULL,
         PROV_RSA_FULL,
         CRYPT_VERIFYCONTEXT | CRYPT_SILENT
-    );
-    if (!win_rng)
+    ))
         return false;
 #elif ! defined (USE_GETENTROPY) && ! defined (USE_WINCRYPT)
     /*
@@ -88,8 +87,16 @@ unsigned int get_rng(void)
 #ifdef USE_GETENTROPY
     getentropy(&r, sizeof(r));
 #elif defined (USE_WINCRYPT)
-    /* TODO: This could fail. Figure out how to handle */
-    CryptGenRandom(win_rng, sizeof(r), (BYTE *) &r);
+    /*
+     * TODO: I'd prefer if this went through the standard cleanup.
+     * Need to figure out how to do that, given the return value
+     * here. Maybe check out some other projects to see how this is
+     * handled, lol
+     */
+    if (!CryptGenRandom(win_rng, sizeof(r), (BYTE *) &r)) {
+        perror("CryptGenRandom");
+        exit(EXIT_FAILURE);
+    }
 #else
     r = rand();
 #endif
