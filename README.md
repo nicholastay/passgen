@@ -17,7 +17,7 @@ See `passgen --help` for details.
 $ make
 
 # Windows, in Developer CMD
-$ cl /std:c11 passgen.c /link Advapi32.lib
+$ build_msvc.bat
 ```
 
 NOTE: Compilation with mingw will use the fallback RNG for password generation. This utilises `rand()` in C, seeded with the time and PID - may be unsafe! On Windows with `cl`, \*nix, macOS, Free/OpenBSD, the relevant system calls will be utilised to get better quality randomness. See the `_rng` functions for details.
