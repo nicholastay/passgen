@@ -5,6 +5,8 @@
 #include <stdbool.h>
 #include <string.h>
 
+#define VERSION "0.1.1"
+
 #if    defined (__linux__) \
     || defined (__APPLE__) \
     || defined (__FreeBSD__) \
@@ -140,7 +142,7 @@ int main(int argc, char *argv[])
     if (argc == 2) {
         if (strcmp(argv[1], "--help") == 0) {
             printf("\
-passgen - a small, customisable password generator\n\
+passgen v"VERSION" - a small, customisable password generator\n\
 Usage: %s\n\
        %s <grammar>\n\
        %s <#triplets ('Cvc')> <#symbols> <#numbers>\n\
@@ -155,7 +157,10 @@ Compile-time options (edit `config.h` to customise!):\n\
                 printf("    - '%c' => \"%s\"\n", classes[i].c, classes[i].letters);
             }
             return 0;
-        }
+        } else if (strcmp(argv[1], "--version") == 0) {
+			printf("passgen v"VERSION"\n");
+			return 0;
+		}
         /* Take first argument as the grammar */
         grammar = argv[1];
         grammar_size = strlen(grammar);
