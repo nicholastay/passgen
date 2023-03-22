@@ -10,6 +10,20 @@ See `passgen --help` for details.
 
 (This is my first C project, please be gentle... some of the decisions I made may look weird or seem like I'm going out of my way to do something - some of these are done intentionally as a way for me to familiarise myself more with the features of the language.)
 
+## Install
+
+passgen is packaged for Fedora Linux and Homebrew.
+
+```
+# Fedora (COPR)
+$ sudo dnf copr enable nicholastay/nexpkg
+$ sudo dnf install passgen
+
+# Homebrew (custom tap)
+$ brew tap nicholastay/tap
+$ brew install passgen
+```
+
 ## Compiling
 
 ```
