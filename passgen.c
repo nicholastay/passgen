@@ -12,7 +12,8 @@
     || defined (__FreeBSD__) \
     || defined (__OpenBSD__)
 #   define USE_GETENTROPY
-#elif defined (_WIN32) && ! defined (__MINGW32__)
+#elif defined (_WIN32) \
+    || defined(__CYGWIN__)
 #   define USE_WINCRYPT
 #endif
 
@@ -30,12 +31,7 @@
 #   include <wincrypt.h>
 #else
 #   include <time.h>
-/* getpid() on Windows */
-#   if defined (_WIN32) && ! defined (__MINGW32__)
-#       include <io.h>
-#   else
-#       include <unistd.h>
-#   endif
+#   include <unistd.h>
 #endif
 
 
@@ -71,6 +67,7 @@ bool init_rng(void)
     ))
         return false;
 #elif ! defined (USE_GETENTROPY) && ! defined (USE_WINCRYPT)
+#pragma message "Using fallback insecure RNG seeding!"
     /*
      * TODO: seed better RNG
      * this isn't very good, but it's enough(?) for now
