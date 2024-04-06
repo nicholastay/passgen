@@ -27,7 +27,7 @@
 #endif
 #elif defined (USE_WINCRYPT)
 #   define WIN32_LEAN_AND_MEAN
-#   include <Windows.h>
+#   include <windows.h>
 #   include <wincrypt.h>
 #else
 #   include <time.h>
