@@ -86,12 +86,6 @@ unsigned int get_rng(void)
 #ifdef USE_GETENTROPY
     getentropy(&r, sizeof(r));
 #elif defined (USE_WINCRYPT)
-    /*
-     * TODO: I'd prefer if this went through the standard cleanup.
-     * Need to figure out how to do that, given the return value
-     * here. Maybe check out some other projects to see how this is
-     * handled, lol
-     */
     if (!CryptGenRandom(win_rng, sizeof(r), (BYTE *) &r)) {
         perror("CryptGenRandom");
         exit(EXIT_FAILURE);
@@ -131,7 +125,6 @@ char *build_grammar(int triplets, int specials, int numbers, int *grammar_size)
 
 int main(int argc, char *argv[])
 {
-    int ret_code = EXIT_SUCCESS;
     char *grammar = grammar_buf;
     int grammar_size = sizeof(DEFAULT_GRAMMAR) - 1;
     char *password = password_buf;
@@ -153,11 +146,11 @@ Compile-time options (edit `config.h` to customise!):\n\
             for (int i = 0; i < classes_n; ++i) {
                 printf("    - '%c' => \"%s\"\n", classes[i].c, classes[i].letters);
             }
-            return 0;
+            return EXIT_SUCCESS;
         } else if (strcmp(argv[1], "--version") == 0) {
-			printf("passgen v"VERSION"\n");
-			return 0;
-		}
+		printf("passgen v"VERSION"\n");
+		return EXIT_SUCCESS;
+	}
         /* Take first argument as the grammar */
         grammar = argv[1];
         grammar_size = strlen(grammar);
@@ -169,8 +162,7 @@ Compile-time options (edit `config.h` to customise!):\n\
         grammar = build_grammar(atoi(argv[1]), atoi(argv[2]), atoi(argv[3]), &grammar_size);
         if (grammar == NULL) {
             fprintf(stderr, "ERROR: Could not initialise memory for password grammar.\n");
-            ret_code = EXIT_FAILURE;
-            goto cleanup;
+	    exit(EXIT_FAILURE);
         }
     }
 
@@ -178,16 +170,14 @@ Compile-time options (edit `config.h` to customise!):\n\
         password = malloc(grammar_size + 1);
         if (password == NULL) {
             perror("malloc");
-            ret_code = EXIT_FAILURE;
-            goto cleanup;
+            exit(EXIT_FAILURE);
         }
     }
     password[grammar_size] = 0;
 
     if (!init_rng()) {
         fprintf(stderr, "ERROR: Could not initialise RNG.\n");
-        ret_code = EXIT_FAILURE;
-        goto cleanup;
+        exit(EXIT_FAILURE);
     }
 
     for (int i = 0; i < grammar_size; ++i) {
@@ -205,8 +195,7 @@ Compile-time options (edit `config.h` to customise!):\n\
         }
         if (class == NULL) {
             fprintf(stderr, "ERROR: Invalid grammar character '%c'.\n", c);
-            ret_code = EXIT_FAILURE;
-            goto cleanup;
+	    exit(EXIT_FAILURE);
         }
 
         do {
@@ -217,16 +206,4 @@ Compile-time options (edit `config.h` to customise!):\n\
     }
 
     printf("%s\n", password);
-
-cleanup:
-#ifdef USE_WINCRYPT
-    CryptReleaseContext(win_rng, 0);
-#endif
-    /* TODO: this && kinda sucks, would like a better but still fast way */
-    if (grammar != grammar_buf && grammar != argv[1])
-        free(grammar);
-    if (password != password_buf)
-        free(password);
-
-    return ret_code;
 }
