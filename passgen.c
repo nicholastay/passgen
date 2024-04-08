@@ -67,7 +67,9 @@ bool init_rng(void)
     ))
         return false;
 #elif ! defined (USE_GETENTROPY) && ! defined (USE_WINCRYPT)
+#if (defined(__GNUC__) || defined(__clang__))
 #pragma message "Using fallback insecure RNG seeding!"
+#endif
     /*
      * TODO: seed better RNG
      * this isn't very good, but it's enough(?) for now
