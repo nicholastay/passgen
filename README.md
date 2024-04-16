@@ -2,7 +2,7 @@
 
 Just a password generator that makes [passwds.ninja](https://passwds.ninja/)-style passwords.
 
-Heavily inspired by a generator I used before at work (in Python), just that this time in C.
+Heavily inspired by a generator I used before at work (in Python), just that this time in C99.
 
 As such, it utilises 'grammars' of character classes, which can be efficiently be mixed and matched on the fly, and/or the grammars themselves being able to be easily customised at compile-time.
 
@@ -12,7 +12,7 @@ See `passgen --help` for details.
 
 ## Install
 
-passgen is packaged for Fedora Linux and Homebrew.
+passgen is officially packaged for Fedora Linux and Homebrew, as these are the platforms I use.
 
 ```
 # Fedora (COPR)
@@ -24,17 +24,31 @@ $ brew tap nicholastay/tap
 $ brew install passgen
 ```
 
+As it is a fairly simple, portable C99 application, it should be easy enough to follow the steps below for the specific platform with just a standard C compiler.
+
 ## Compiling
 
 ```
-# *nix / macOS / mingw (on Windows)
+# *nix / macOS / Windows-MinGW
 $ make
+# (optionally to install into prefix, default target is ~/.local/bin/)
+$ make install
 
-# Windows, in Developer CMD
+# Windows with MSVC, in MSVC Developer CMD
 $ build_msvc.bat
+
+# Cross-compile for Win32 via MinGW on Linux
+$ make passgen.exe
+# (for Win64)
+$ make passgen.exe CC_WIN32=x86_64-w64-mingw32-gcc
+
+# Cross-compile for DOS 16-bit Real Mode via OpenWatcom on Linux
+$ export WATCOM=<path to watcom install>
+$ export PATH=$WATCOM/binl64:$WATCOM/binl:$PATH; export EDPATH=$WATCOM/eddat; export INCLUDE=$WATCOM/h
+$ make passgen.com
 ```
 
-NOTE: Compilation with mingw will use the fallback RNG for password generation. This utilises `rand()` in C, seeded with the time and PID - may be unsafe! On Windows with `cl`, \*nix, macOS, Free/OpenBSD, the relevant system calls will be utilised to get better quality randomness. See the `_rng` functions for details.
+NOTE: Compilation under certain modes will fallback to a weaker RNG source. This utilises `rand()` in C, seeded with the time and PID - may be quite insecure! A modern compiler should warn when compiled in this mode. On most modern systems (Windows XP+ with `cl`/`mingw`, \*nix, macOS, Free/OpenBSD), the relevant system calls will be utilised to get better quality randomness. See the `_rng` functions for details.
 
 ## Licence
 
