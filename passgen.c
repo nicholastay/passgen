@@ -7,6 +7,7 @@
 
 #define VERSION "0.1.1"
 
+#ifndef NO_PLATFORM_CRYPT
 #if    defined (__linux__) \
     || defined (__APPLE__) \
     || defined (__FreeBSD__) \
@@ -15,6 +16,7 @@
 #elif defined (_WIN32) \
     || defined(__CYGWIN__)
 #   define USE_WINCRYPT
+#endif
 #endif
 
 
